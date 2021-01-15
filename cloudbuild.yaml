@@ -6,7 +6,7 @@ steps:
   args:
   - 'build'
   - '-t'
-  - 'gcr.io/$PROJECT_ID/pumba-ui:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/pumba-uploader:$SHORT_SHA'
   - '.'
 
 # Push the image to Container Registry (Currently Google)
@@ -16,7 +16,7 @@ steps:
   id: Push Image
   args:
   - 'push'
-  - 'gcr.io/$PROJECT_ID/pumba-ui:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/pumba-uploader:$SHORT_SHA'
 
 # Access the id_github file from Secret Manager
 # TODO: Create a key to github for this project
@@ -82,9 +82,9 @@ steps:
   - |
     set -x && \
     cd pumba && \
-    git add manifests/pumba-ui/deployment.yaml && \
-    git commit -m "Deploying image gcr.io/${PROJECT_ID}/pumba-ui:${SHORT_SHA}
-    Built from commit ${COMMIT_SHA} of repository pumba-ui
+    git add manifests/pumba-uploader/deployment.yaml && \
+    git commit -m "Deploying image gcr.io/${PROJECT_ID}/pumba-uploader:${SHORT_SHA}
+    Built from commit ${COMMIT_SHA} of repository pumba-uploader
     Author: $(git log --format='%an <%ae>' -n 1 HEAD)" && \
     git push origin main
   volumes:
