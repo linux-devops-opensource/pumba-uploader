@@ -2,13 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: pumba-ui
-  name: pumba-ui
+    app.kubernetes.io/component: uploader
+    app.kubernetes.io/name: pumba-uploader
+    app.kubernetes.io/part-of: pumba
+  name: pumba-uploader
   namespace: pumba
 spec:
   selector:
     matchLabels:
-      app: pumba-ui
+      app.kubernetes.io/name: pumba-uploader
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -17,11 +19,11 @@ spec:
   template:
     metadata:
       labels:
-        app: pumba-ui
+        app.kubernetes.io/name: pumba-uploader
     spec:
       containers:
-      - image: gcr.io/GOOGLE_CLOUD_PROJECT/pumba-ui:COMMIT_SHA
-        name: pumba-ui
+      - image: gcr.io/GOOGLE_CLOUD_PROJECT/pumba-uploader:COMMIT_SHA
+        name: pumba-uploader
         ports:
         - containerPort: 5000
           protocol: TCP
