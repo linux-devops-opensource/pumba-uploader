@@ -8,8 +8,9 @@ const fs = require('fs');
 // import {inject} from '@loopback/core';
 
 const tempFileLocation : string = "/tmp/fileUpload";
-const storageApiUrl : string = "api-whatever-lol"; 
+const storageApiUrl : string = "api-whatever"; 
 const nexusUrl : string = "http://20.50.53.193:8081/"; 
+const uiUrl : string = "ui-whatever"; 
 const authToken : string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI="; 
 
 
@@ -29,15 +30,16 @@ export class PackageController {
 
     // upload packages -- send req to nexus
     // check if npms 
-    let packageStats = []; 
+    let packageStats: void[] = []; 
     packages.forEach(async packageName => {
       packageStats.push(await this.sendNpmPackages(packageName)); 
     }); 
 
 
-
-
     // send results back to ui + wipe tempFileLocation 
+
+    // TODO compatibility with ui 
+    axios({ method : "post", url : uiUrl, data: packageStats}); 
 
     return packages; 
 
