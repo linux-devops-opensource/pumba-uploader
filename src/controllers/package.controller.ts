@@ -9,7 +9,7 @@ const fs = require('fs');
 
 const tempFileLocation : string = "/tmp/fileUpload";
 const storageApiUrl : string = "api-whatever-lol"; 
-const nexusUrl : string = "nexus-api-whatever"; 
+const nexusUrl : string = "http://20.50.53.193:8081/"; 
 const authToken : string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI="; 
 
 
