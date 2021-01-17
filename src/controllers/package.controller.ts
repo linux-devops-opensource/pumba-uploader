@@ -8,9 +8,9 @@ const fs = require('fs');
 // import {inject} from '@loopback/core';
 
 const tempFileLocation : string = "/tmp/fileUpload";
-const storageApiUrl : string = "api-whatever"; 
+const storageApiUrl : string = "http://20.73.218.20:5000/"; 
 const nexusUrl : string = "http://20.50.53.193:8081/"; 
-const uiUrl : string = "ui-whatever"; 
+const uiUrl : string = "http://20.50.49.79:80"; 
 const authToken : string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI="; 
 
 
@@ -25,7 +25,7 @@ export class PackageController {
 
     // get + download packages from storage by name in tempFileLocation 
     packages.forEach(async packageName => {
-      await this.downloadPackage(`${storageApiUrl}${packageName}`, `${tempFileLocation}/${packageName}`); 
+      await this.downloadPackage(`${storageApiUrl}${packageName}`, `${tempFileLocation}/${session_id}/${packageName}`); 
     })
 
     // upload packages -- send req to nexus
@@ -40,6 +40,9 @@ export class PackageController {
 
     // TODO compatibility with ui 
     axios({ method : "post", url : uiUrl, data: packageStats}); 
+    
+    fs.rmdir(`${tempFileLocation}/${session_id}/`, { recursive: true })
+      .then(() => console.log('directory removed!'));
 
     return packages; 
 
