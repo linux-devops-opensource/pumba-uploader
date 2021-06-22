@@ -20,7 +20,15 @@ export class PackageController {
   @post('/api/package/{session_id}')
   async pay(
     @param.path.number('session_id') session_id: number, 
-    @requestBody() packages: Array<string>)
+    @requestBody(
+      content: {
+        'application/json': {
+          type: 'array',
+          schema: {
+            type: 'string',      
+          },
+        },
+      }) data: any)
   : Promise<Object> {
 
     // get + download packages from storage by name in tempFileLocation 
