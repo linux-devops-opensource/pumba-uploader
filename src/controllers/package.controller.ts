@@ -1,5 +1,4 @@
 // Uncomment these imports to begin using these cool features!
-
 import {param, post, requestBody} from "@loopback/rest";
 import axios from 'axios';
 const fs = require('fs');
@@ -12,6 +11,17 @@ const nexusUrl: string = "http://20.82.12.78:8081/";
 const uiUrl: string = "http://20.50.49.79:80";
 const authToken: string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI=";
 
+const schema = {
+  type: 'object',
+  properties: {
+    packages: {
+      type: 'array',
+      items: {
+        'x-ts-type': 'string',
+      },
+    }
+  }
+};
 
 export class PackageController {
   constructor() { }
@@ -21,15 +31,23 @@ export class PackageController {
     @param.path.number('session_id') session_id: number,
     @requestBody({
       content: {
-        'application/json': {
-          type: 'array',
-          schema: {
-            type: 'string',
-          },
-        },
+        'application/json': schema
       }
-    }) packages: Array<string>)
-    : Promise<Object> {
+    }) info: object)
+    : Promise<object> {
+
+    let packages: [] = Object.values(info)[0];
+
+
+    // let a = {packages: ["askdjhas.asd", "asdk"]}
+    // console.log(a.packages)
+    // let keys = Object.keys(info)
+    // console.log(keys)
+    // console.log(Object.values(info)[0])
+    // // console.log(info.packages)
+    // console.log(typeof (info))
+    // let strJson = JSON.stringify(info)
+    // let json = JSON.parse(strJson)
 
     // get + download packages from storage by name in tempFileLocation
     packages.forEach(async packageName => {
@@ -53,6 +71,7 @@ export class PackageController {
       .then(() => console.log('directory removed!'));
 
     return packages;
+    // return {};
 
   }
 
