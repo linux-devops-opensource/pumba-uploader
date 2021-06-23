@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const tempFileLocation: string = "/tmp/fileUpload";
 const storageApiUrl: string = "http://20.73.218.20:3000/";
-const nexusUrl: string = "http://20.82.12.78:8081/";
+const nexusUrl: string = "http://20.76.247.10:8081/";
 const uiUrl: string = "http://20.50.49.79:80";
 const authToken: string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI=";
 
@@ -65,10 +65,12 @@ export class PackageController {
     // send results back to ui + wipe tempFileLocation
 
     // TODO compatibility with ui
-    axios({method: "post", url: uiUrl, data: packageStats});
+    // axios({method: "post", url: uiUrl, data: packageStats});
 
-    fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
-      .then(() => console.log('directory removed!'));
+    // TODO TO BE UNCOMMENTED
+    // POD CLEANUP AFTER UPLOAD
+    // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
+    //   .then(() => console.log('directory removed!'));
 
     return packages;
     // return {};
