@@ -1,15 +1,18 @@
-// Uncomment these imports to begin using these cool features!
 import {param, post, requestBody} from "@loopback/rest";
 import axios from 'axios';
+import request from 'request';
 const fs = require('fs');
 
-// import {inject} from '@loopback/core';
 
-const tempFileLocation: string = "/tmp/fileUpload";
+// const tempFileLocation: string = "/tmp/fileUpload";
+const tempFileLocation: string = "C:\\Users\\adidush\\Desktop\\army-stuff\\fileUpload";
 const storageApiUrl: string = "http://20.73.218.20:3000/";
 const nexusUrl: string = "http://20.76.247.10:8081/";
 const uiUrl: string = "http://20.50.49.79:80";
-const authToken: string = "Basic cHVtYmEtdXBsb2FkZXI6ZGV2b3BzNEVWRVI=";
+// const authToken: string = "Basic admin2:devops4EVER";
+//const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
+//const authToken: string = "Basic YWRtaW4yOmRldm9wczRFVkVS";
+const authToken: string = "Basic admin2:devops4EVER";
 
 const schema = {
   type: 'object',
@@ -38,42 +41,27 @@ export class PackageController {
 
     let packages: [] = Object.values(info)[0];
 
-
-    // let a = {packages: ["askdjhas.asd", "asdk"]}
-    // console.log(a.packages)
-    // let keys = Object.keys(info)
-    // console.log(keys)
-    // console.log(Object.values(info)[0])
-    // // console.log(info.packages)
-    // console.log(typeof (info))
-    // let strJson = JSON.stringify(info)
-    // let json = JSON.parse(strJson)
-
     // get + download packages from storage by name in tempFileLocation
-    packages.forEach(async packageName => {
-      await this.downloadPackage(`${storageApiUrl}${packageName}`, `${tempFileLocation}/${session_id}/${packageName}`);
-    })
+    // packages.forEach(async packageName => {
+    //   await this.downloadPackage(`${storageApiUrl}${packageName}`, `${tempFileLocation}\\${session_id}\\${packageName}`);
+    // })
 
     // upload packages -- send req to nexus
     // check if npms
     let packageStats: void[] = [];
     packages.forEach(async packageName => {
-      packageStats.push(await this.sendNpmPackages(packageName));
+      packageStats.push(await this.sendNpmPackages(packageName, session_id));
     });
 
 
     // send results back to ui + wipe tempFileLocation
 
-    // TODO compatibility with ui
-    // axios({method: "post", url: uiUrl, data: packageStats});
-
-    // TODO TO BE UNCOMMENTED
-    // POD CLEANUP AFTER UPLOAD
+    // // TODO TO BE UNCOMMENTED
+    // // POD CLEANUP AFTER UPLOAD
     // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
     //   .then(() => console.log('directory removed!'));
 
-    return packages;
-    // return {};
+    return packageStats;
 
   }
 
@@ -105,22 +93,45 @@ export class PackageController {
   }
 
   // sends npm packages to the nexus, tries to upload them and returns a status
-  async sendNpmPackages(assetName: string) {
-    let url = nexusUrl + "/components";
+  async sendNpmPackages(assetName: string, session_id: number) {
+    let url = nexusUrl + "/service/rest/v1/components";
+
+    const data = {
+      value: fs.createReadStream(`${tempFileLocation}\\${session_id}\\${assetName}`),
+      options: {filename: assetName, contentType: null}
+    };
+
     let payload = {
-      "npm.asset": [assetName, fs.open(assetName, 'rb')]
+      "npm.asset": data
     };
-    let params = {
-      "repository": "npm-public",
-      "type": "application/gzip",
-      "accept": "application/json",
-      "Content-Type": "multippart/form-data"
+
+    let repoData = {"repository": "npm-public2"};
+
+    let headers = {
+      "Authorization": authToken,
+      // "Content-Type": "application/json"
+      "Content-Type": "multipart/form-data",
+      // "type": "application/x-compressed"
     };
-    let headers = {"Authorization": authToken};
-    axios({method: 'POST', url: url, data: {payload, params}, headers: headers})
-      .then(res => {return {"name": assetName, "status": "success"};})
-      .catch(err => {return {"name": assetName, "status": err};})
+
+    let options = {
+      method: 'POST',
+      url: url,
+      qs: repoData,
+      headers: headers,
+      formData: payload
+    };
+
+    await request(options, function (error: any, response: any, body: any) {
+      if (error) {
+        console.log(error)
+        return {"packageName": assetName, "status": error};
+      } else {
+        // success
+        console.log(response.statusCode)
+        console.log(response.body)
+        return {"packageName": assetName, "status": "success"};
+      }
+    })
   }
-
-
 }
