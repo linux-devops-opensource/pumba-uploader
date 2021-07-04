@@ -6,13 +6,13 @@ const fs = require('fs');
 
 // const tempFileLocation: string = "/tmp/fileUpload";
 const tempFileLocation: string = "C:\\Users\\adidush\\Desktop\\army-stuff\\fileUpload";
-const storageApiUrl: string = "http://20.73.218.20:3000/";
-const nexusUrl: string = "http://20.76.247.10:8081/";
+const storageApiUrl: string = "http://20.73.218.20:3000";
+const nexusUrl: string = "http://20.76.247.10:8081";
 const uiUrl: string = "http://20.50.49.79:80";
 // const authToken: string = "Basic admin2:devops4EVER";
 //const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
 //const authToken: string = "Basic YWRtaW4yOmRldm9wczRFVkVS";
-const authToken: string = "Basic admin2:devops4EVER";
+const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
 
 const schema = {
   type: 'object',
@@ -40,19 +40,24 @@ export class PackageController {
     : Promise<object> {
 
     let packages: [] = Object.values(info)[0];
+    // let packageStats: void[] = [];
+    // let packageStats: Object = {};
 
     // get + download packages from storage by name in tempFileLocation
-    // packages.forEach(async packageName => {
-    //   await this.downloadPackage(`${storageApiUrl}${packageName}`, `${tempFileLocation}\\${session_id}\\${packageName}`);
-    // })
+    console.log(packages);
+    let packageStats = await packages.forEach(packageName => {
+      this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${tempFileLocation}\\${session_id}\\${packageName}`)
+        .then(_res => {
+          console.log(_res);
+          this.sendNpmPackages(packageName, session_id).then(npmRes => {return npmRes;})
+        });
+    })
 
     // upload packages -- send req to nexus
-    // check if npms
-    let packageStats: void[] = [];
-    packages.forEach(async packageName => {
-      packageStats.push(await this.sendNpmPackages(packageName, session_id));
-    });
-
+    // check if npms -- divide by type of package in future
+    // packages.forEach(async packageName => {
+    //   packageStats.push(await this.sendNpmPackages(packageName, session_id));
+    // });
 
     // send results back to ui + wipe tempFileLocation
 
@@ -60,13 +65,15 @@ export class PackageController {
     // // POD CLEANUP AFTER UPLOAD
     // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
     //   .then(() => console.log('directory removed!'));
-
-    return packageStats;
+    console.log("STATS  " + packageStats);
+    return [null];
 
   }
 
-  // download the package from the storage maneger
+  // download the package from the storage maneger -- WORKS
   async downloadPackage(fileUrl: string, outputLocationPath: string) {
+    console.log(outputLocationPath);
+    console.log(fileUrl);
     const writer = fs.createWriteStream(outputLocationPath);
     return axios({
       method: 'get',
@@ -94,42 +101,45 @@ export class PackageController {
 
   // sends npm packages to the nexus, tries to upload them and returns a status
   async sendNpmPackages(assetName: string, session_id: number) {
-    let url = nexusUrl + "/service/rest/v1/components";
+
+    console.log(assetName);
+    console.log(session_id);
+
+    let url = nexusUrl + "/service/rest/v1/components?repository=npm-public";
 
     const data = {
       value: fs.createReadStream(`${tempFileLocation}\\${session_id}\\${assetName}`),
-      options: {filename: assetName, contentType: null}
+      type: 'type=application/x-compressed',
+      options: {'filename': assetName, 'contentType': null}
     };
 
     let payload = {
       "npm.asset": data
     };
 
-    let repoData = {"repository": "npm-public2"};
 
     let headers = {
       "Authorization": authToken,
-      // "Content-Type": "application/json"
+      'accept': 'application/json',
       "Content-Type": "multipart/form-data",
-      // "type": "application/x-compressed"
     };
 
     let options = {
       method: 'POST',
       url: url,
-      qs: repoData,
       headers: headers,
       formData: payload
     };
 
     await request(options, function (error: any, response: any, body: any) {
+      // console.log(JSON.stringify(options))
+      console.log(options);
       if (error) {
         console.log(error)
         return {"packageName": assetName, "status": error};
       } else {
         // success
         console.log(response.statusCode)
-        console.log(response.body)
         return {"packageName": assetName, "status": "success"};
       }
     })
