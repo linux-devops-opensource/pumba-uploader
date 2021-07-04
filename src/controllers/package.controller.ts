@@ -4,8 +4,8 @@ import request from 'request';
 const fs = require('fs');
 
 
-// const tempFileLocation: string = "/tmp/fileUpload";
-const tempFileLocation: string = "C:\\Users\\adidush\\Desktop\\army-stuff\\fileUpload";
+const tempFileLocation: string = "/tmp/fileUpload";
+// const tempFileLocation: string = "C:\\Users\\adidush\\Desktop\\army-stuff\\fileUpload";
 const storageApiUrl: string = "http://20.73.218.20:3000/";
 const nexusUrl: string = "http://20.76.247.10:8081/";
 const uiUrl: string = "http://20.50.49.79:80";
@@ -27,7 +27,7 @@ const schema = {
 };
 
 export class PackageController {
-  constructor() { }
+  constructor() {}
 
   @post('/api/package/{session_id}')
   async pay(
