@@ -112,7 +112,7 @@ export class PackageController {
           }
         });
       });
-    });
+    }).catch((err) => {console.log(err);});
   }
 
   // sends npm packages to the nexus, tries to upload them and returns a status
