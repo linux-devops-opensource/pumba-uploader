@@ -93,31 +93,41 @@ export class PackageController {
     console.log(outputLocationPath);
     console.log(fileUrl);
     const writer = fs.createWriteStream(outputLocationPath);
+    var files = fs.readdirSync(outputLocationPath);
+    console.log("OUTPUT PATH   ", files)
+    var otherFiles = fs.readdirSync(tempFileLocation);
+    console.log("temp path     ", otherFiles)
+    await new Promise(r => setTimeout(r, 20000));
 
-    return axios({
-      method: 'get',
-      url: fileUrl,
-      responseType: 'stream',
-    }).then((response) => {
-      console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
-      return new Promise((res, rej) => {
-        response.data.pipe(writer);
-        let error: null = null;
-        writer.on('error', (err: null) => {
-          error = err;
-          writer.close();
-          console.log(err)
-          rej(err);
+
+    try {
+      return axios({
+        method: 'get',
+        url: fileUrl,
+        responseType: 'stream',
+      }).then((response) => {
+        console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
+        return new Promise((res, rej) => {
+          response.data.pipe(writer);
+          let error: null = null;
+          writer.on('error', (err: null) => {
+            error = err;
+            writer.close();
+            console.log(err)
+            rej(err);
+          });
+          writer.on('close', () => {
+            console.log("CLOSED FILE &&&&&&&&&&")
+            if (!error) {
+              console.log(fileUrl, 'download complete')
+              res(true);
+            }
+          });
         });
-        writer.on('close', () => {
-          console.log("CLOSED FILE &&&&&&&&&&")
-          if (!error) {
-            console.log(fileUrl, 'download complete')
-            res(true);
-          }
-        });
-      });
-    }).catch((err) => {console.log(err);});
+      }).catch((err) => {console.log(err);});
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // sends npm packages to the nexus, tries to upload them and returns a status
