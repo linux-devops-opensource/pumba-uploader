@@ -50,7 +50,9 @@ export class PackageController {
 
     // if the folder doesnt exist, create it
     if (!fs.existsSync(localFilesLocation)) {
-      fs.mkdirSync(localFilesLocation);
+      fs.mkdir(localFilesLocation, {recursive: true}, (err: any) => {
+        if (err) throw err;
+      });
     }
 
     let packageStats = await packages.forEach(packageName => {
