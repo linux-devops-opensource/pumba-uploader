@@ -66,7 +66,7 @@ export class PackageController {
     // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
     //   .then(() => console.log('directory removed!'));
     console.log("STATS  " + packageStats);
-    return [packageStats];
+    return [null];
 
   }
 
