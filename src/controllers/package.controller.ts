@@ -93,11 +93,17 @@ export class PackageController {
     console.log(outputLocationPath);
     console.log(fileUrl);
     const writer = fs.createWriteStream(outputLocationPath);
-    var files = fs.readdirSync(outputLocationPath);
-    console.log("OUTPUT PATH   ", files)
-    var otherFiles = fs.readdirSync(tempFileLocation);
-    console.log("temp path     ", otherFiles)
+    try {
+      var files = fs.readdirSync(outputLocationPath);
+      console.log("OUTPUT PATH   ", files)
+      var otherFiles = fs.readdirSync(tempFileLocation);
+      console.log("temp path     ", otherFiles)
+    } catch (e) {
+      console.log("ERORR IN CONSOLE LOG")
+      console.log(e);
+    }
     await new Promise(r => setTimeout(r, 20000));
+
 
 
     try {
