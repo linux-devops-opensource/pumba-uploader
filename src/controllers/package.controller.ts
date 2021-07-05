@@ -31,7 +31,7 @@ export class PackageController {
 
   @post('/api/package/{session_id}')
   async pay(
-    @param.path.number('session_id') session_id: string,
+    @param.path.string('session_id') session_id: string,
     @requestBody({
       content: {
         'application/json': schema
