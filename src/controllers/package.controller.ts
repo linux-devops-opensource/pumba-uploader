@@ -40,8 +40,8 @@ export class PackageController {
     : Promise<object> {
 
     let packages: [] = Object.values(info)[0];
-    // let packageStats: void[] = [];
-    // let packageStats: Object = {};
+    // BANDAID
+    // from some reason it wont recognize info as an object so u can take packages out of it
 
     // get + download packages from storage by name in tempFileLocation
     console.log(packages);
