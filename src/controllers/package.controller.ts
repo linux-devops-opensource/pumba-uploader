@@ -44,6 +44,8 @@ export class PackageController {
     // from some reason it wont recognize info as an object so u can take packages out of it
 
     // get + download packages from storage by name in tempFileLocation
+    console.log(session_id);
+    console.log(info);
     console.log(packages);
 
     const localFilesLocation = `${tempFileLocation}/${session_id}`
@@ -97,15 +99,15 @@ export class PackageController {
     }).then((response) => {
       console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
       return new Promise((res, rej) => {
-        const s = response.data.pipe(writer);
+        response.data.pipe(writer);
         let error: null = null;
-        s.on('error', (err: null) => {
+        writer.on('error', (err: null) => {
           error = err;
           writer.close();
           console.log(err)
           rej(err);
         });
-        s.on('close', () => {
+        writer.on('close', () => {
           console.log("CLOSED FILE &&&&&&&&&&")
           if (!error) {
             console.log(fileUrl, 'download complete')
