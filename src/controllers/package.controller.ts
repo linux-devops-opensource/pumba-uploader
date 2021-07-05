@@ -27,11 +27,11 @@ const schema = {
 };
 
 export class PackageController {
-  constructor() { }
+  constructor() {}
 
   @post('/api/package/{session_id}')
   async pay(
-    @param.path.number('session_id') session_id: number,
+    @param.path.number('session_id') session_id: string,
     @requestBody({
       content: {
         'application/json': schema
