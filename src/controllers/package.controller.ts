@@ -54,7 +54,7 @@ export class PackageController {
     // if the folder doesnt exist, create it
     if (!fs.existsSync(localFilesLocation)) {
       console.log("folder does not exist@@@@@@@@@@@2")
-      fs.mkdir(localFilesLocation, {recursive: true}, (err: any) => {
+      fs.mkdirSync(localFilesLocation, {recursive: true}, (err: any) => {
         console.log(err);
       });
     }
