@@ -48,7 +48,6 @@ export class PackageController {
     console.log(info);
     console.log(packages);
 
-    await new Promise(r => setTimeout(r, 20000));
 
     const localFilesLocation = `${tempFileLocation}/${session_id}`
 
@@ -59,6 +58,7 @@ export class PackageController {
         console.log(err);
       });
     }
+    await new Promise(r => setTimeout(r, 5000));
     console.log("starting download!!!!!!!!!")
 
     let packageStats = await packages.forEach(packageName => {
