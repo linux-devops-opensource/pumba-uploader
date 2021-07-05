@@ -65,7 +65,8 @@ export class PackageController {
     // // POD CLEANUP AFTER UPLOAD
     // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
     //   .then(() => console.log('directory removed!'));
-    console.log("STATS  " + packageStats);
+
+    // console.log("STATS  " + packageStats);
     return [null];
 
   }
