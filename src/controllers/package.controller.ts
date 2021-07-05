@@ -45,8 +45,16 @@ export class PackageController {
 
     // get + download packages from storage by name in tempFileLocation
     console.log(packages);
+
+    const localFilesLocation = `${tempFileLocation}/${session_id}`
+
+    // if the folder doesnt exist, create it
+    if (!fs.existsSync(localFilesLocation)) {
+      fs.mkdirSync(localFilesLocation);
+    }
+
     let packageStats = await packages.forEach(packageName => {
-      this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${tempFileLocation}/${session_id}/${packageName}`)
+      this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${localFilesLocation}/${packageName}`)
         .then(_res => {
           console.log(_res);
           this.sendNpmPackages(packageName, session_id).then(npmRes => {return npmRes;})
