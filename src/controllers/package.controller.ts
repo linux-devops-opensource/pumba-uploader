@@ -48,6 +48,8 @@ export class PackageController {
     console.log(info);
     console.log(packages);
 
+    await new Promise(r => setTimeout(r, 5000));
+
     const localFilesLocation = `${tempFileLocation}/${session_id}`
 
     // if the folder doesnt exist, create it
