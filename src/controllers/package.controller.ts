@@ -46,7 +46,7 @@ export class PackageController {
     // get + download packages from storage by name in tempFileLocation
     console.log(packages);
     let packageStats = await packages.forEach(packageName => {
-      this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${tempFileLocation}\\${session_id}\\${packageName}`)
+      this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${tempFileLocation}/${session_id}/${packageName}`)
         .then(_res => {
           console.log(_res);
           this.sendNpmPackages(packageName, session_id).then(npmRes => {return npmRes;})
@@ -66,7 +66,7 @@ export class PackageController {
     // fs.rmdir(`${tempFileLocation}/${session_id}/`, {recursive: true})
     //   .then(() => console.log('directory removed!'));
     console.log("STATS  " + packageStats);
-    return [null];
+    return [packageStats];
 
   }
 
@@ -108,7 +108,7 @@ export class PackageController {
     let url = nexusUrl + "/service/rest/v1/components?repository=npm-public";
 
     const data = {
-      value: fs.createReadStream(`${tempFileLocation}\\${session_id}\\${assetName}`),
+      value: fs.createReadStream(`${tempFileLocation}/${session_id}/${assetName}`),
       type: 'type=application/x-compressed',
       options: {'filename': assetName, 'contentType': null}
     };
