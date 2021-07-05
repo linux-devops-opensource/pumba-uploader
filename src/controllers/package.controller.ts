@@ -53,7 +53,6 @@ export class PackageController {
       console.log("folder does not exist@@@@@@@@@@@2")
       fs.mkdir(localFilesLocation, {recursive: true}, (err: any) => {
         console.log(err);
-        // if (err) throw err;
       });
     }
     console.log("starting download!!!!!!!!!")
@@ -85,7 +84,7 @@ export class PackageController {
 
   }
 
-  // download the package from the storage maneger -- WORKS
+  // download the package from the storage maneger
   async downloadPackage(fileUrl: string, outputLocationPath: string) {
     console.log(outputLocationPath);
     console.log(fileUrl);
@@ -95,6 +94,7 @@ export class PackageController {
       url: fileUrl,
       responseType: 'stream',
     }).then((response) => {
+      console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
       return new Promise((res, rej) => {
         response.data.pipe(writer);
         let error: null = null;
@@ -105,6 +105,7 @@ export class PackageController {
           rej(err);
         });
         writer.on('close', () => {
+          console.log("CLOSED FILE &&&&&&&&&&")
           if (!error) {
             console.log(fileUrl, 'download complete')
             res(true);
