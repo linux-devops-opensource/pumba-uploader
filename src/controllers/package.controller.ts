@@ -53,7 +53,7 @@ export class PackageController {
       console.log("folder does not exist@@@@@@@@@@@2")
       fs.mkdir(localFilesLocation, {recursive: true}, (err: any) => {
         console.log(err);
-        if (err) throw err;
+        // if (err) throw err;
       });
     }
     console.log("starting download!!!!!!!!!")
