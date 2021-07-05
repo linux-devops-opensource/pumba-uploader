@@ -89,6 +89,7 @@ export class PackageController {
     console.log(outputLocationPath);
     console.log(fileUrl);
     const writer = fs.createWriteStream(outputLocationPath);
+
     return axios({
       method: 'get',
       url: fileUrl,
@@ -96,15 +97,15 @@ export class PackageController {
     }).then((response) => {
       console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
       return new Promise((res, rej) => {
-        response.data.pipe(writer);
+        const s = response.data.pipe(writer);
         let error: null = null;
-        writer.on('error', (err: null) => {
+        s.on('error', (err: null) => {
           error = err;
           writer.close();
           console.log(err)
           rej(err);
         });
-        writer.on('close', () => {
+        s.on('close', () => {
           console.log("CLOSED FILE &&&&&&&&&&")
           if (!error) {
             console.log(fileUrl, 'download complete')
