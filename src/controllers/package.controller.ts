@@ -50,15 +50,19 @@ export class PackageController {
 
     // if the folder doesnt exist, create it
     if (!fs.existsSync(localFilesLocation)) {
+      console.log("folder does not exist@@@@@@@@@@@2")
       fs.mkdir(localFilesLocation, {recursive: true}, (err: any) => {
+        console.log(err);
         if (err) throw err;
       });
     }
+    console.log("starting download!!!!!!!!!")
 
     let packageStats = await packages.forEach(packageName => {
       this.downloadPackage(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${localFilesLocation}/${packageName}`)
         .then(_res => {
           console.log(_res);
+          console.log("starting send%%%%%%%%%%%%%%%%%%%%%%");
           this.sendNpmPackages(packageName, session_id).then(npmRes => {return npmRes;})
         });
     })
