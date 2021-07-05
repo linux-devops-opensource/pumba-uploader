@@ -100,7 +100,7 @@ export class PackageController {
   }
 
   // sends npm packages to the nexus, tries to upload them and returns a status
-  async sendNpmPackages(assetName: string, session_id: number) {
+  async sendNpmPackages(assetName: string, session_id: string) {
 
     console.log(assetName);
     console.log(session_id);
