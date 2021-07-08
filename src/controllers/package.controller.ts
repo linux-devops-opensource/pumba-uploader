@@ -1,8 +1,6 @@
 import {param, post, requestBody} from "@loopback/rest";
 import axios from 'axios';
 import request from 'request';
-const rp = require('request-promise');
-
 const fs = require('fs');
 
 
