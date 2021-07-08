@@ -1,10 +1,13 @@
 import {param, post, requestBody} from "@loopback/rest";
 import axios from 'axios';
 import request from 'request';
+const rp = require('request-promise');
+
 const fs = require('fs');
 
 
 const tempFileLocation: string = "/tmp/fileUpload";
+
 const storageApiUrl: string = "http://20.73.218.20:3000";
 const nexusUrl: string = "http://20.76.247.10:8081";
 const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
@@ -25,7 +28,7 @@ export class PackageController {
   constructor() { }
 
   @post('/api/package/{session_id}')
-  async uploadPackage(
+  async handleUploadRequest(
     @param.path.string('session_id') session_id: string,
     @requestBody({
       content: {
@@ -47,29 +50,10 @@ export class PackageController {
 
     // if the folder doesnt exist, create it
     if (!fs.existsSync(localFilesLocation)) {
-      console.log("folder does not exist@@@@@@@@@@@2")
       fs.mkdirSync(localFilesLocation, {recursive: true}, (err: any) => {console.log(err);});
     }
-    // await new Promise(r => setTimeout(r, 5000));
-    console.log("starting download!!!!!!!!!")
 
-    let packageStats: any = [];
-    packageStats = await packages.forEach(packageName => {
-      this.downloadPackageLocally(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${localFilesLocation}/${packageName}`)
-        .then(_res => {
-          console.log(_res);
-          console.log("starting send%%%%%%%%%%%%%%%%%%%%%%");
-          this.uploadSinglePackage(packageName, session_id).then(npmRes => {return npmRes;})
-        });
-    })
-
-    // upload packages -- send req to nexus
-    // check if npms -- divide by type of package in future
-    // packages.forEach(async packageName => {
-    //   packageStats.push(await this.uploadSinglePackage(packageName, session_id));
-    // });
-
-    // send results back to ui + wipe tempFileLocation
+    const packageStats = await this.uploadPackages(packages, session_id, localFilesLocation);
 
     // // TODO someday -- fix this lol
     // // POD CLEANUP AFTER UPLOAD
@@ -79,12 +63,42 @@ export class PackageController {
     console.log("STATS  " + packageStats);
     return packageStats;
 
+  };
+
+  // returns list of objects
+  async uploadPackages(packages: string[], session_id: string, localFilesLocation: string) {
+    let uploadResponses: any = [];
+
+    for (const packageName of packages) {
+      const res = await this.handlePackage(packageName, session_id, localFilesLocation);
+      uploadResponses.push(res);
+    }
+
+    return uploadResponses;
   }
 
-  // download the package from the storage maneger
+
+  // download package + try to upload, returns upload status
+  async handlePackage(packageName: string, session_id: string, localFilesLocation: string) {
+    try {
+      await this.downloadPackageLocally(`${storageApiUrl}/packages/${session_id}/${packageName}`, `${localFilesLocation}/${packageName}`);
+
+      const uploadRes = await this.uploadSinglePackage(packageName, session_id);
+      return uploadRes;
+
+    } catch (e) {
+      console.log("ERROR in handlePackage");
+      console.log(e);
+    }
+  }
+
+
+  // download the package from the storage maneger, returns void
   async downloadPackageLocally(fileUrl: string, outputLocationPath: string) {
     console.log(outputLocationPath);
     console.log(fileUrl);
+    console.log("starting download!!!!!!!!!")
+
     const writer = fs.createWriteStream(outputLocationPath);
 
     try {
@@ -93,7 +107,6 @@ export class PackageController {
         url: fileUrl,
         responseType: 'stream',
       }).then((response) => {
-        console.log("GOT FILE FROM AXIOS@@@@@@@@@@@@@2")
         return new Promise((res, rej) => {
           response.data.pipe(writer);
           let error: null = null;
@@ -104,7 +117,6 @@ export class PackageController {
             rej(err);
           });
           writer.on('close', () => {
-            console.log("CLOSED FILE &&&&&&&&&&")
             if (!error) {
               console.log(fileUrl, ' download complete')
               res(true);
@@ -113,11 +125,13 @@ export class PackageController {
         });
       }).catch((err) => {console.log(err);});
     } catch (e) {
+      console.log("ERROR in downloadPackageLocally");
       console.log(e);
     }
   }
 
-  // sends npm packages to the nexus, tries to upload them and returns a status
+
+  // uploads npm package to nexus, returns an upload status (success/error)
   async uploadSinglePackage(assetName: string, session_id: string) {
     // todo someday -- make this general and not only npm
     console.log(assetName);
@@ -137,7 +151,6 @@ export class PackageController {
         "npm.asset": data
       };
 
-
       let headers = {
         "Authorization": authToken,
         'accept': 'application/json',
@@ -151,21 +164,37 @@ export class PackageController {
         formData: payload
       };
 
-      await request(options, function (err: any, response: any, body: any) {
-        console.log(options);
-        if (err) {
-          console.log(err)
-          return {"packageName": assetName, "status": err};
-        } else {
-          // success
-          console.log(response.statusCode)
-          return {"packageName": assetName, "status": "success"};
-        }
-      })
+      try {
+        let res = await this.promisifiedRequest(options);
+        console.log(res);
+        return {"packageName": assetName, "status": "success"};
+      } catch (e) {
+        console.log("ERROR in req to nexus in uploadSinglePackage");
+        console.log(e);
+        return {"packageName": assetName, "status": e};
+      }
+
     } catch (e) {
-      console.log("ERROR in uploadSinglePackage ", e);
+      console.log("ERROR in uploadSinglePackage");
+      console.log(e);
       return {"packageName": assetName, "status": e};
     }
   }
+
+
+  promisifiedRequest(options: any) {
+    return new Promise((resolve, reject) => {
+      request(options, (error: any, response: any, body: any) => {
+        if (response) {
+          return resolve(response);
+        }
+        if (error) {
+          return reject(error);
+        }
+      });
+    });
+  };
+  // requests is (deprecated and old and also) very much not async
+  // https://stackoverflow.com/questions/45778474/proper-request-with-async-await-in-node-js/54791697#54791697
 
 }
