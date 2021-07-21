@@ -8,7 +8,8 @@ const tempFileLocation: string = "/tmp/fileUpload";
 
 const storageApiUrl: string = "http://20.73.218.20:3000";
 const nexusUrl: string = "http://20.76.247.10:8081";
-const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
+const authToken: string = "Basic admin:devops4EVER";
+// const authToken: string = "Basic YWRtaW46ZGV2b3BzNEVWRVI=";
 
 const schema = {
   type: 'object',
@@ -23,7 +24,7 @@ const schema = {
 };
 
 export class PackageController {
-  constructor() { }
+  constructor() {}
 
   @post('/api/package/{session_id}')
   async handleUploadRequest(
