@@ -165,7 +165,7 @@ export class PackageController {
 
       try {
         let res = await this.promisifiedRequest(options);
-        console.log(res);
+        // console.log(res);
         return {"packageName": assetName, "status": "success"};
       } catch (e) {
         console.log("ERROR in req to nexus in uploadSinglePackage");
