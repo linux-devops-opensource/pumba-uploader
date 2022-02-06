@@ -3,6 +3,18 @@ import {ApplicationConfig, PumbaUploaderApplication} from './application';
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
+
+  if ( process.env.NEXUS_BASE_URL == undefined ) {
+    throw new Error('nexus base url is not defined')
+  }
+  if ( process.env.NEXUS_UPLOAD_AUTH_TOKEN == undefined ) {
+    throw new Error('NEXUS_UPLOAD_AUTH_TOKEN is not defined')
+  }
+  if ( process.env.STORAGE_MANAGER_URL == undefined ) {
+    throw new Error('STORAGE_MANAGER_URL is not defined')
+  }
+
+
   const app = new PumbaUploaderApplication(options);
   await app.boot();
   await app.start();
