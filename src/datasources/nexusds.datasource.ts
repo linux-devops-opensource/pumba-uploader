@@ -31,7 +31,8 @@ const config = {
 					Authorization: AUTH_TOKEN,
 					accept: 'application/json',
 					'Content-Type': '{mimetype}',
-					'Content-Disposition': `attachment; filename={filename}`
+					'Content-Disposition': 'attachment; filename={filename}',
+					'content-length': '{length}'
 				},
 				data: {
 					'npm.asset': {
@@ -42,7 +43,7 @@ const config = {
 				fullResponse: true
 			},
 			functions: {
-				uploadFile: [ 'repository', 'payload', 'mimetype', 'filename' ]
+				uploadFile: [ 'repository', 'payload', 'mimetype', 'filename', 'length' ]
 			}
 		}
 	]

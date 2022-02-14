@@ -29,7 +29,7 @@ const config = {
 		{
 			template: {
 				method: 'GET',
-				url: STORAGE_MANAGER_URL + `/packages/{sessionId}/{fileName}`,
+				url: STORAGE_MANAGER_URL + `/sessions/{sessionId}/file/{fileName}`,
 				options: {
 					encoding: null
 				},

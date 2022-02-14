@@ -8,7 +8,13 @@ export interface Nexus {
 	// mapped to REST/SOAP/gRPC operations as stated in the datasource
 	// json file.
 	// TODO
-	uploadFile(repository: string, payload: Buffer, mimetype: string, filename: string): Promise<object>;
+	uploadFile(
+		repository: string,
+		payload: Buffer,
+		mimetype: string,
+		filename: string,
+		length: string
+	): Promise<object>;
 	// searchAssetBySha1(sha1: string): Promise<NexusAsset>;
 }
 

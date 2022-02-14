@@ -7,14 +7,11 @@ import { Nexus } from '../services/nexus.service';
 import { StorageManager } from '../services/storage-manager.service';
 import { fromBuffer } from 'file-type';
 
-// import got from 'got';
-// import parser from 'form-parser';
 const parser = require('form-parser');
 
 const STORAGE_MANAGER_URL = process.env.STORAGE_MANAGER_URL;
-
 if (STORAGE_MANAGER_URL == undefined) {
-	throw new Error('base variables are undefined somehow -- storageManagerds');
+	throw new Error('base variables are undefined somehow -- session controller');
 }
 
 export class SessionsController {
@@ -60,6 +57,8 @@ export class SessionsController {
 			if (!fileContent.headers) {
 				throw new Error();
 			}
+			console.log(fileContent.headers);
+			console.log(Buffer.byteLength(fileContent.body));
 			// console.log(typeof fileContent.body);
 			// console.log(fileContent.headers['content-type']);
 			// // the storage manager returns an 'application/octet-stream'
@@ -90,7 +89,8 @@ export class SessionsController {
 					// attrs.mime,
 					'multipart/form-data',
 					// fileContent.headers['content-type'],
-					pkg.name
+					pkg.name,
+					fileContent.headers['content-length']
 				);
 				console.log(nexusRes);
 			} catch (e) {
