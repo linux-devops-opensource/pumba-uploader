@@ -1,26 +1,25 @@
 import { inject } from '@loopback/core';
 import { FilterExcludingWhere, repository } from '@loopback/repository';
-import { post, param, get, getModelSchemaRef, put, del, requestBody, response, Response } from '@loopback/rest';
+import { post, getModelSchemaRef, requestBody, response, Response } from '@loopback/rest';
 import { Session } from '../models/session.model';
 import { SessionRepository } from '../repositories/session.repository';
-// import { Nexus } from '../services/nexus.service';
+import { Nexus } from '../services/nexus.service';
 import { StorageManager } from '../services/storage-manager.service';
 import { fromBuffer } from 'file-type';
 import request from 'request';
 import { ReadStream } from 'fs';
-// import { Readable } from 'stream';
 const { Readable } = require('stream');
 
+/* eslint-disable  @typescript-eslint/no-explicit-any-catch */
+
 const NEXUS_URL = process.env.NEXUS_BASE_URL;
-// const AUTH_TOKEN = process.env.NEXUS_UPLOAD_AUTH_TOKEN;
-// admin + password in base64
-const AUTH_TOKEN = 'Basic YWRtaW46ZGV2b3BzNEVWRVI=';
+const AUTH_TOKEN = process.env.NEXUS_UPLOAD_AUTH_TOKEN;
 const UPLOAD_URL = `/service/rest/v1/components?repository=`;
 
 export class SessionsController {
 	constructor(
 		@repository(SessionRepository) public sessionRepository: SessionRepository,
-		// @inject('services.Nexus') protected nexusService: Nexus,
+		@inject('services.Nexus') protected nexusService: Nexus,
 		@inject('services.StorageManager') protected storageManagerService: StorageManager
 	) {}
 
@@ -53,37 +52,49 @@ export class SessionsController {
 			console.log(attrs);
 			if (!attrs) {
 				// somethings wrong w the buffer
-				throw new Error();
+				throw new Error('something is wrong w the file in s3~~~');
 			}
 
 			console.log('trying to send to nexus post parsing!!~~');
 
 			// const stream: ReadStream = Readable.from(fileContent.body);
 			// console.log(stream);
-			const payload = {
-				'npm.asset': {
-					value: fileContent.body,
-					type: 'type=application/x-compressed',
-					options: { filename: pkg.name, contentType: null }
-				}
-			}; // PLEASE NOTE THIS IS A BUFFER
-
-			let options = {
-				method: 'POST',
-				url: NEXUS_URL + UPLOAD_URL + repoName,
-				headers: {
-					Authorization: AUTH_TOKEN,
-					accept: 'application/json'
-				},
-				formData: payload
-			};
+			// const payload = {
+			// 	'npm.asset': {
+			// 		value: fileContent.body,
+			// 		type: 'type=application/x-compressed',
+			// 		options: { filename: pkg.name, contentType: null }
+			// 	}
+			// };
+			// let options = {
+			// 	method: 'POST',
+			// 	url: NEXUS_URL + UPLOAD_URL + repoName,
+			// 	headers: {
+			// 		Authorization: AUTH_TOKEN,
+			// 		accept: 'application/json'
+			// 	},
+			// 	formData: payload
+			// };
 
 			try {
-				let res: request.Response = await this.promisifiedRequest(options);
+				let res: Response = await this.nexusService.uploadFile(
+					repoName,
+					fileContent.body,
+					// attrs.mime,
+					pkg.name
+				);
+				// let res: request.Response = await this.promisifiedRequest(options);
+				// console.log(res);
+
+				console.log(res.statusCode);
 				pkg.statusCode = res.statusCode;
 			} catch (e) {
-				console.log('in catch ~~~~~~~');
-				console.log(e);
+				console.log('caught error ~~~~~~~');
+				// console.log(e);
+				// pkg.statusCode = 500;
+				pkg.statusCode = e.statusCode ? e.statusCode : 500;
+
+				pkg.info = e.message ? e.message : 'probable server err :// contact ur fave system admin';
 			}
 		}
 

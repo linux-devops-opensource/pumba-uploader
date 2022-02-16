@@ -21,6 +21,11 @@ export class Pkg extends Entity {
 	})
 	statusCode?: number;
 
+	@property({
+		type: 'string'
+	})
+	info?: string;
+
 	constructor(data?: Partial<Pkg>) {
 		super(data);
 	}
