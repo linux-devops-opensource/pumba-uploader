@@ -48,42 +48,42 @@ export class SessionsController {
 			// sigh
 			let fileContent: any = await this.storageManagerService.getPackage(session.sid, pkg.name);
 
-			const attrs = await fromBuffer(fileContent.body);
-			console.log(attrs);
-			if (!attrs) {
-				// somethings wrong w the buffer
-				throw new Error('something is wrong w the file in s3~~~');
-			}
+			// const attrs = await fromBuffer(fileContent.body);
+			// console.log(attrs);
+			// if (!attrs) {
+			// 	// somethings wrong w the buffer
+			// 	throw new Error('something is wrong w the file in s3~~~');
+			// }
 
 			console.log('trying to send to nexus post parsing!!~~');
 
 			// const stream: ReadStream = Readable.from(fileContent.body);
 			// console.log(stream);
-			// const payload = {
-			// 	'npm.asset': {
-			// 		value: fileContent.body,
-			// 		type: 'type=application/x-compressed',
-			// 		options: { filename: pkg.name, contentType: null }
-			// 	}
-			// };
-			// let options = {
-			// 	method: 'POST',
-			// 	url: NEXUS_URL + UPLOAD_URL + repoName,
-			// 	headers: {
-			// 		Authorization: AUTH_TOKEN,
-			// 		accept: 'application/json'
-			// 	},
-			// 	formData: payload
-			// };
+			const payload = {
+				'npm.asset': {
+					value: fileContent.body,
+					type: 'type=application/x-compressed',
+					options: { filename: pkg.name, contentType: null }
+				}
+			};
+			let options = {
+				method: 'POST',
+				url: NEXUS_URL + UPLOAD_URL + repoName,
+				headers: {
+					Authorization: AUTH_TOKEN,
+					accept: 'application/json'
+				},
+				formData: payload
+			};
 
 			try {
-				let res: Response = await this.nexusService.uploadFile(
-					repoName,
-					fileContent.body,
-					// attrs.mime,
-					pkg.name
-				);
-				// let res: request.Response = await this.promisifiedRequest(options);
+				// let res: Response = await this.nexusService.uploadFile(
+				// 	repoName,
+				// 	fileContent.body,
+				// 	// attrs.mime,
+				// 	pkg.name
+				// );
+				let res: request.Response = await this.promisifiedRequest(options);
 				// console.log(res);
 
 				console.log(res.statusCode);
