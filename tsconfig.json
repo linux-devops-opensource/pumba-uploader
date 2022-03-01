@@ -2,7 +2,9 @@
   "extends": "./node_modules/@loopback/build/config/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src", 
+    "strict": true, 
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "src"
