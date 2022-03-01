@@ -1,6 +1,6 @@
 import { inject } from '@loopback/core';
 import { FilterExcludingWhere, repository } from '@loopback/repository';
-import { post, getModelSchemaRef, requestBody, response, Response } from '@loopback/rest';
+import { post, getModelSchemaRef, requestBody, response, Response, RestBindings } from '@loopback/rest';
 import { Session } from '../models/session.model';
 import { SessionRepository } from '../repositories/session.repository';
 import { Nexus } from '../services/nexus.service';
@@ -20,8 +20,11 @@ export class SessionsController {
 	constructor(
 		@repository(SessionRepository) public sessionRepository: SessionRepository,
 		@inject('services.Nexus') protected nexusService: Nexus,
-		@inject('services.StorageManager') protected storageManagerService: StorageManager
-	) {}
+		@inject('services.StorageManager') protected storageManagerService: StorageManager,
+		@inject(RestBindings.Http.RESPONSE) private response: Response
+	) {
+		(this.response as any).setTimeout(600000);
+	}
 
 	@post('/sessions')
 	@response(200, {
@@ -40,11 +43,10 @@ export class SessionsController {
 		})
 		session: Session
 	): Promise<Session> {
+		let counter = 0;
 		let repoName: string = this.getRepoName(session.repository);
 
-		for (let pkg of session.pkgs) {
-			console.log(pkg.name);
-
+		for (const pkg of session.pkgs) {
 			// sigh
 			let fileContent: any = await this.storageManagerService.getPackage(session.sid, pkg.name);
 
@@ -55,7 +57,7 @@ export class SessionsController {
 			// 	throw new Error('something is wrong w the file in s3~~~');
 			// }
 
-			console.log('trying to send to nexus post parsing!!~~');
+			// console.log('trying to send to nexus post parsing!!~~');
 
 			// const stream: ReadStream = Readable.from(fileContent.body);
 			// console.log(stream);
@@ -73,7 +75,8 @@ export class SessionsController {
 					Authorization: AUTH_TOKEN,
 					accept: 'application/json'
 				},
-				formData: payload
+				formData: payload,
+				timeout: 300
 			};
 
 			try {
@@ -86,7 +89,8 @@ export class SessionsController {
 				let res: request.Response = await this.promisifiedRequest(options);
 				// console.log(res);
 
-				console.log(res.statusCode);
+				console.log(pkg.name, ' ~~~~ ', res.statusCode, '~~~', counter);
+				counter += 1;
 				pkg.statusCode = res.statusCode;
 			} catch (e) {
 				console.log('caught error ~~~~~~~');
@@ -99,6 +103,7 @@ export class SessionsController {
 		}
 
 		console.log(session);
+		console.log('returning ', session.pkgs.length, 'pkgs');
 
 		return session;
 		// return this.sessionRepository.create(session);
